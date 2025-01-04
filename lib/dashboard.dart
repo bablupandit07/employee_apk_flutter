@@ -39,7 +39,6 @@ class MyApp extends StatelessWidget {
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
-
   Future<String> getUserName() async {
     Map<String, String> userData = await getUserSession();
     return userData['emp_name']!;
