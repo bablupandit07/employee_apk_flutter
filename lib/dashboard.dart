@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'api_service.dart'; // Import the ApiService class
 
 Future<Map<String, String>> getUserSession() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -17,6 +18,7 @@ Future<Map<String, String>> getUserSession() async {
 void main() {
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
@@ -39,9 +41,11 @@ class MyApp extends StatelessWidget {
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
+
+  // Fetch the user name using Future
   Future<String> getUserName() async {
     Map<String, String> userData = await getUserSession();
-    return userData['emp_name']!;
+    return userData['emp_name']!; // Ensuring that emp_name is not null
   }
 
   @override
@@ -49,147 +53,181 @@ class DashboardPage extends StatelessWidget {
     return FutureBuilder<String>(
       future: getUserName(),
       builder: (context, snapshot) {
+        // Handle the loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
+        // Handle the error state
         if (snapshot.hasError) {
           return const Center(child: Text('Error loading data'));
         }
 
+        // Get the user name, or set default
         String userName = snapshot.data ?? 'Unknown User';
 
-        return Scaffold(
-          appBar: CustomAppBar(
-            title: 'Employee Attendance',
-            userName: userName,
-          ),
-          drawer: MyDrawer(userName: userName),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Circular chart
-                  Stack(
-                    alignment: Alignment.center,
+        // Fetch the data for dashboard after user name is fetched
+        return FutureBuilder<Map<String, dynamic>>(
+          future: ApiService.getAllData(),
+          builder: (context, snapshot) {
+            // Handle loading state for the API data
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            // Handle error state for the API data
+            if (snapshot.hasError) {
+              return const Center(child: Text('Error loading data'));
+            }
+
+            // Handle case when API data is null or empty
+            if (!snapshot.hasData || snapshot.data == null) {
+              return const Center(child: Text('No data available'));
+            }
+
+            // At this point, we have the data available
+            final allData = snapshot.data ?? {};
+            final sessionData = allData['sessionData'] as Map<String, String>? ?? {};
+            final attendanceData = allData['attendanceData'] as Map<String, dynamic>? ?? {};
+
+            String empName = sessionData['emp_name'] ?? 'Unknown User';
+            int workingDays = int.tryParse(attendanceData['count_working_days']?.toString() ?? '0') ?? 0;
+            int onTime = int.tryParse(attendanceData['on_time']?.toString() ?? '0') ?? 0;
+            int lateIn = int.tryParse(attendanceData['late_in']?.toString() ?? '0') ?? 0;
+            int earlyExit = int.tryParse(attendanceData['early_exit']?.toString() ?? '0') ?? 0;
+            int absent = int.tryParse(attendanceData['absent']?.toString() ?? '0') ?? 0;
+
+            return Scaffold(
+              appBar: CustomAppBar(
+                title: 'Employee Attendance',
+                userName: empName,
+              ),
+              drawer: MyDrawer(userName: empName),
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        width: 200,
-                        height: 200,
-                        child: CircularProgressIndicator(
-                          value: 0.75, // Adjust progress value
-                          strokeWidth: 16.0,
-                          backgroundColor: Colors.grey.shade300,
-                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.red),
-                        ),
-                      ),
-                      Column(
-                        children: const [
-                          Text(
-                            '1',
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red,
+                      // Circular chart
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          SizedBox(
+                            width: 200,
+                            height: 200,
+                            child: CircularProgressIndicator(
+                              value: workingDays > 0 ? onTime / workingDays : 0,
+                              strokeWidth: 16.0,
+                              backgroundColor: Colors.grey.shade300,
+                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.red),
                             ),
                           ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Working Days',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Jan 2025',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          Column(
+                            children: [
+                              Text(
+                                workingDays.toString(),
+                                style: const TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Working Days',
+                                style: TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Jan 2025',
+                                style: TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ],
                           ),
                         ],
                       ),
+                      const SizedBox(height: 24),
+
+                      // Status row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          StatusCard(
+                            label: 'On Time',
+                            value: onTime.toString(),
+                            color: Colors.green,
+                          ),
+                          StatusCard(
+                            label: 'Late In',
+                            value: lateIn.toString(),
+                            color: Colors.orange,
+                          ),
+                          StatusCard(
+                            label: 'Early Exit',
+                            value: earlyExit.toString(),
+                            color: Colors.blue,
+                          ),
+                          StatusCard(
+                            label: 'Absent',
+                            value: absent.toString(),
+                            color: Colors.red,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Buttons
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                          backgroundColor: Colors.lightBlue.shade700,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/attendance');
+                        },
+                        child: const Text(
+                          'Attendance Entry',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                          backgroundColor: Colors.lightBlue.shade700,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                        ),
+                        onPressed: () {
+                          // Handle Expense Entry
+                        },
+                        child: const Text(
+                          'Expense Entry',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 155),
+
+                      // Bottom Navigation
+                      const Divider(),
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 1.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            BottomNavIcon(icon: Icons.dashboard, label: 'Dashboard'),
+                            BottomNavIcon(icon: Icons.history, label: 'History'),
+                            BottomNavIcon(icon: Icons.person, label: 'Profile'),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-
-                  // Status row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      StatusCard(
-                        label: 'On Time',
-                        value: '0',
-                        color: Colors.green,
-                      ),
-                      StatusCard(
-                        label: 'Late In',
-                        value: '0',
-                        color: Colors.orange,
-                      ),
-                      StatusCard(
-                        label: 'Early Exit',
-                        value: '0',
-                        color: Colors.blue,
-                      ),
-                      StatusCard(
-                        label: 'Absent',
-                        value: '1',
-                        color: Colors.red,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Buttons
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                      backgroundColor: Colors.lightBlue.shade700,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                    ),
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/attendance');
-                      // Handle Attendance Entry
-                    },
-
-                    child: const Text(
-                      'Attendance Entry',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                      backgroundColor: Colors.lightBlue.shade700,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                    ),
-                    onPressed: () {
-                      // Handle Expense Entry
-                    },
-                    child: const Text(
-                      'Expense Entry',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(height:155),
-
-                  // Bottom Navigation
-                  const Divider(),
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 1.0), // Add margin at the bottom
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        BottomNavIcon(icon: Icons.dashboard, label: 'Dashboard'),
-                        BottomNavIcon(icon: Icons.history, label: 'History'),
-                        BottomNavIcon(icon: Icons.person, label: 'Profile'),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -244,7 +282,7 @@ class MyDrawer extends StatelessWidget {
               ),
             ),
             accountEmail: Text(
-              '$userName@example.com', // Placeholder for email
+              '', // Placeholder for email
               style: const TextStyle(color: Colors.white70),
             ),
             currentAccountPicture: CircleAvatar(
@@ -271,7 +309,6 @@ class MyDrawer extends StatelessWidget {
           ),
           const Divider(),
           const SizedBox(height: 390),
-
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
