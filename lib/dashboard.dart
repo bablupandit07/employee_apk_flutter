@@ -200,7 +200,7 @@ class DashboardPage extends StatelessWidget {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                         ),
                         onPressed: () {
-                          // Handle Expense Entry
+                          Navigator.pushNamed(context, '/expense');
                         },
                         child: const Text(
                           'Expense Entry',

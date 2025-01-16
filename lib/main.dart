@@ -3,6 +3,7 @@ import 'login.dart'; // Import the LoginPage file
 import 'dashboard.dart'; // Import the DashboardPage
 import  'appbar.dart';
 import 'attendance.dart';
+import 'expense.dart';
 
 
 void main() {
@@ -31,6 +32,8 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const DashboardPage());
           case '/attendance':
             return MaterialPageRoute(builder: (_) => const Attendance());
+          case '/expense':
+            return MaterialPageRoute(builder: (_) => ExpenseEntryPage());
 
           default:
             return MaterialPageRoute(
