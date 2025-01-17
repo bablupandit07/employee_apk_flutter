@@ -242,7 +242,7 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
           isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Failed to fetch data'),
+          content: Text('Failed to fetch data '),
         ));
       }
     } catch (e) {
