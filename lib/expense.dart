@@ -45,7 +45,6 @@ class _ExpenseEntryPageState extends State<ExpenseEntryPage> {
       ));
       return;
     }
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String empId = prefs.getString('emp_id') ?? '0'; // Default empId if not found
 
@@ -129,7 +128,7 @@ class _ExpenseEntryPageState extends State<ExpenseEntryPage> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: _submitData,
-              child: Text('Submit'),
+              child: Text('Add Expense'),
             ),
             SizedBox(height: 16),
             Center(
@@ -175,6 +174,8 @@ class ExpenseEntryListPage extends StatelessWidget {
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
+
+      // print(response);
       if (response.statusCode == 200) {
         final Map<String, dynamic> decodedResponse = json.decode(response.body);
         if (decodedResponse.containsKey('data')) {
@@ -263,7 +264,7 @@ class ExpenseEntryListPage extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
                               ),
-                              child: Text('DELETE'),
+                              child: Text('DELETE s'),
                             ),
 
                           ],
