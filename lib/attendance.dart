@@ -182,7 +182,7 @@ class _AttendanceState extends State<Attendance> {
                                 ? Colors.green.shade700
                                 : Colors.green,
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0)),
+                                borderRadius: BorderRadius.circular(10.10)),
                           ),
                           onPressed: intime.isEmpty
                               ? () {
@@ -194,6 +194,7 @@ class _AttendanceState extends State<Attendance> {
                             style: const TextStyle(
                                 fontSize: 18, color: Colors.white),
                           ),
+
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton(
@@ -203,7 +204,7 @@ class _AttendanceState extends State<Attendance> {
                             backgroundColor: intime.isNotEmpty &&
                                 outtime.isEmpty
                                 ? Colors.red.shade700
-                                : Colors.grey,
+                                : Colors.red,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0)),
                           ),
@@ -215,7 +216,8 @@ class _AttendanceState extends State<Attendance> {
                           child: Text(
                             outtime.isEmpty ? 'Out Entry' : 'Out Time: $outtime',
                             style: const TextStyle(
-                                fontSize: 18, color: Colors.white),
+                                fontSize: 17, color: Colors.white),
+
                           ),
                         ),
                         const SizedBox(height: 16),
