@@ -1,51 +1,25 @@
 import 'package:flutter/material.dart';
+import 'appbar.dart'; // Importing the custom AppBar
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api_service.dart'; // Import the ApiService class
+import 'sidebar_page.dart'; // Importing SidebarPage
 
 Future<Map<String, String>> getUserSession() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  // Retrieve 'emp_id' and 'emp_name' from shared preferences
   String? empId = prefs.getString('emp_id');
   String? empName = prefs.getString('emp_name');
-
-  // Return the values in a map (you can return null or empty string if no data is found)
   return {
-    'emp_id': empId ?? '',  // Default to empty string if not found
+    'emp_id': empId ?? '',
     'emp_name': empName ?? '',
   };
-}
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Employee Dashboard',
-      theme: ThemeData(
-        fontFamily: 'Roboto',
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const DashboardPage(),
-      routes: {
-        '/dashboard': (context) => const DashboardPage(),
-        '/settings': (context) => const SettingsPage(),
-      },
-    );
-  }
 }
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
-  // Fetch the user name using Future
   Future<String> getUserName() async {
     Map<String, String> userData = await getUserSession();
-    return userData['emp_name']!; // Ensuring that emp_name is not null
+    return userData['emp_name']!;
   }
 
   @override
@@ -53,39 +27,31 @@ class DashboardPage extends StatelessWidget {
     return FutureBuilder<String>(
       future: getUserName(),
       builder: (context, snapshot) {
-        // Handle the loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        // Handle the error state
         if (snapshot.hasError) {
           return const Center(child: Text('Error loading data'));
         }
 
-        // Get the user name, or set default
         String userName = snapshot.data ?? 'Unknown User';
 
-        // Fetch the data for dashboard after user name is fetched
         return FutureBuilder<Map<String, dynamic>>(
           future: ApiService.getAllData(),
           builder: (context, snapshot) {
-            // Handle loading state for the API data
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            // Handle error state for the API data
             if (snapshot.hasError) {
               return const Center(child: Text('Error loading data'));
             }
 
-            // Handle case when API data is null or empty
             if (!snapshot.hasData || snapshot.data == null) {
               return const Center(child: Text('No data available'));
             }
 
-            // At this point, we have the data available
             final allData = snapshot.data ?? {};
             final sessionData = allData['sessionData'] as Map<String, String>? ?? {};
             final attendanceData = allData['attendanceData'] as Map<String, dynamic>? ?? {};
@@ -101,15 +67,22 @@ class DashboardPage extends StatelessWidget {
               appBar: CustomAppBar(
                 title: 'Employee Attendance',
                 userName: empName,
+                leading: IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SidebarPage(userName: empName)),
+                    );
+                  },
+                ),
               ),
-              drawer: MyDrawer(userName: empName),
               body: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Circular chart
                       Stack(
                         alignment: Alignment.center,
                         children: [
@@ -148,8 +121,6 @@ class DashboardPage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 24),
-
-                      // Status row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
@@ -176,8 +147,6 @@ class DashboardPage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 24),
-
-                      // Buttons
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
@@ -201,7 +170,6 @@ class DashboardPage extends StatelessWidget {
                         ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/expense');
-
                         },
                         child: const Text(
                           'Expense Entry',
@@ -209,8 +177,6 @@ class DashboardPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 155),
-
-                      // Bottom Navigation
                       const Divider(),
                       Container(
                         margin: const EdgeInsets.only(bottom: 1.0),
@@ -231,94 +197,6 @@ class DashboardPage extends StatelessWidget {
           },
         );
       },
-    );
-  }
-}
-
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  final String userName;
-
-  const CustomAppBar({Key? key, required this.title, required this.userName})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: Text(title),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.dashboard),
-          onPressed: () {
-            Navigator.pushNamed(context, '/dashboard');
-          },
-        ),
-      ],
-    );
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
-
-class MyDrawer extends StatelessWidget {
-  final String userName;
-
-  const MyDrawer({Key? key, required this.userName}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        children: [
-          UserAccountsDrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
-            accountName: Text(
-              'Welcome, $userName',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            accountEmail: Text(
-              '', // Placeholder for email
-              style: const TextStyle(color: Colors.white70),
-            ),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Text(
-                userName[0], // Displaying the first letter of the user's name
-                style: const TextStyle(fontSize: 30, color: Colors.blue),
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.dashboard),
-            title: const Text('Dashboard'),
-            onTap: () {
-              Navigator.pushNamed(context, '/dashboard');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
-            onTap: () {
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-          const Divider(),
-          const SizedBox(height: 390),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
-            onTap: () {
-              Navigator.pushReplacementNamed(context, '/'); // Logout or redirect logic
-            },
-          ),
-        ],
-      ),
     );
   }
 }
@@ -375,23 +253,6 @@ class BottomNavIcon extends StatelessWidget {
           style: const TextStyle(fontSize: 12, color: Colors.grey),
         ),
       ],
-    );
-  }
-}
-
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(
-        title: 'Settings',
-        userName: 'John Doe',
-      ),
-      body: const Center(
-        child: Text('Settings Page'),
-      ),
     );
   }
 }
