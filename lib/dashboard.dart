@@ -201,6 +201,7 @@ class DashboardPage extends StatelessWidget {
                         ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/expense');
+
                         },
                         child: const Text(
                           'Expense Entry',

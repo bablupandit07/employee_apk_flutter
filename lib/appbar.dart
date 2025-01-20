@@ -4,8 +4,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String userName;
 
-  const CustomAppBar({Key? key, required this.title, required this.userName})
-      : super(key: key);
+  const CustomAppBar({super.key, required this.title, required this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 class MyDrawer extends StatelessWidget {
   final String userName;
 
-  const MyDrawer({Key? key, required this.userName}) : super(key: key);
+  const MyDrawer({super.key, required this.userName});
 
   @override
   Widget build(BuildContext context) {
