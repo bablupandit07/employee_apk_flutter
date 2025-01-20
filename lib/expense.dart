@@ -194,7 +194,7 @@ class _ExpenseEntryPageState extends State<ExpenseEntryPage> {
                       );
                     },
                     child: Text(
-                      'View Expense List',
+                      'View Expense List ',
                       style: TextStyle(
                           color: Colors.blue,
                           decoration: TextDecoration.underline),
