@@ -68,7 +68,7 @@ class DashboardPage extends StatelessWidget {
                 title: 'Employee Attendance',
                 userName: empName,
                 leading: IconButton(
-                  icon: const Icon(Icons.menu),
+                  icon: const Icon(Icons.menu,color: Colors.white,),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -150,8 +150,7 @@ class DashboardPage extends StatelessWidget {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                          backgroundColor: Colors.lightBlue.shade700,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                          backgroundColor: const Color(0xFF15295F),                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                         ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/attendance');
@@ -165,8 +164,7 @@ class DashboardPage extends StatelessWidget {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                          backgroundColor: Colors.lightBlue.shade700,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                          backgroundColor: const Color(0xFF15295F),                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                         ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/expense');

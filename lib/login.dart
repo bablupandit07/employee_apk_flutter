@@ -9,7 +9,8 @@ Future<void> setUserSession(Map<String, dynamic> userData) async {
   // Save user data in shared preferences
   prefs.setString('emp_id', userData['emp_id'].toString());
   prefs.setString('emp_name', userData['emp_name'].toString());
-  prefs.setString('address', userData['address'].toString());
+  prefs.setString('emp_password', userData['emp_password'].toString());
+  prefs.setString('phone_no', userData['mob_no'].toString());
   // Add other fields as required, like phone number, address, etc.
 }
 class LoginPage extends StatefulWidget {

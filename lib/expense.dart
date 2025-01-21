@@ -132,7 +132,31 @@ class _ExpenseEntryPageState extends State<ExpenseEntryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Expense Entry')),
+      appBar: AppBar(
+        title: const Text(
+          'Expense Entry',
+          style: TextStyle(color: Colors.white), // Set text color explicitly
+        ),
+        backgroundColor: const Color(0xFF15295F), // AppBar background color
+        iconTheme: const IconThemeData(color: Colors.white), // Make icons white
+        actions: [
+          // Regular logout icon
+          IconButton(
+            icon: const Icon(Icons.exit_to_app), // Logout icon
+            onPressed: () async {
+              // Handle the logout action
+              // Destroy the session (clear SharedPreferences)
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.clear();  // This will remove all saved session data
+
+              // Navigate to the home or login page after logging out
+              Navigator.pushReplacementNamed(context, '/'); // Replace with the appropriate route
+            },
+          ),
+        ],
+      ),
+
+
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -181,8 +205,24 @@ class _ExpenseEntryPageState extends State<ExpenseEntryPage> {
                 SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _submitData,
-                  child: Text('Add Expense'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50), // Makes the button fill 100% width
+                    backgroundColor: Color(0xFF15295F),     // Custom background color
+                    textStyle: const TextStyle(
+                      fontSize: 18,                        // Text size
+                      fontWeight: FontWeight.bold,         // Bold text
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), // Rounded corners
+                    ),
+                  ),
+                  child: const Text('Add Expense', style:  TextStyle(
+                    color: Colors.white, // Set the desired text color here
+                    fontSize: 16,        // Optionally adjust the font size
+                    fontWeight: FontWeight.bold, // Optionally adjust the font weight
+                  ),),
                 ),
+
                 SizedBox(height: 16),
                 Center(
                   child: GestureDetector(

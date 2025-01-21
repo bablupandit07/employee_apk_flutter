@@ -4,6 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'api_service.dart';
+import 'appbar.dart';
 class Attendance extends StatefulWidget {
   const Attendance({super.key});
   @override
@@ -160,11 +161,12 @@ class _AttendanceState extends State<Attendance> {
         return Stack(
           children: [
             Scaffold(
-              appBar: CustomAppBar(
-                title: 'Employee Attendance',
-                userName: empName,
+              appBar: AppBar(
+                title: Text('Employee Attendance', style: TextStyle(color: Colors.white)),
+                backgroundColor: Color(0xFF15295F),
+                iconTheme: const IconThemeData(color: Colors.white), // Make icons white
+
               ),
-              drawer: MyDrawer(userName: empName),
               body: Center(
                 child: SingleChildScrollView(
                   child: Padding(
@@ -255,75 +257,4 @@ class _AttendanceState extends State<Attendance> {
   }
 }
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  final String userName;
 
-  const CustomAppBar({Key? key, required this.title, required this.userName})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: Text(title),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.dashboard),
-          onPressed: () {
-            Navigator.pushNamed(context, '/dashboard');
-          },
-        ),
-      ],
-    );
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
-
-class MyDrawer extends StatelessWidget {
-  final String userName;
-
-  const MyDrawer({Key? key, required this.userName}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        children: [
-          UserAccountsDrawerHeader(
-            decoration: const BoxDecoration(
-              color: Colors.blue,
-            ),
-            accountName: Text(
-              'Welcome, $userName',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            accountEmail: const Text(
-              '', // Placeholder for email
-              style: TextStyle(color: Colors.white70),
-            ),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Text(
-                userName[0], // Displaying the first letter of the user's name
-                style: const TextStyle(fontSize: 30, color: Colors.blue),
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Dashboard'),
-            onTap: () {
-              Navigator.pushNamed(context, '/dashboard');
-            },
-          ),
-          const Divider(),
-        ],
-      ),
-    );
-  }
-}

@@ -76,7 +76,7 @@ class SidebarPage extends StatelessWidget {
                       icon: Icons.people,
                       text: 'Employee Attendance',
                       onTap: () {
-                        Navigator.pushNamed(context, '/employee-attendance');
+                        Navigator.pushNamed(context, '/attendance');
                       },
                     ),
                     _buildDrawerItem(
@@ -90,7 +90,7 @@ class SidebarPage extends StatelessWidget {
                     _buildDrawerItem(
                       context,
                       icon: Icons.logout,
-                      text: 'Sign Out',
+                      text: 'Si gn Out',
                       onTap: () {
                         Navigator.pushReplacementNamed(context, '/');
                       },
